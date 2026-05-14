@@ -23,9 +23,11 @@ export const getBranding = (c: Context | Request): Branding => {
   const defaultBranding = zones.find(zone => zone.default) ?? zones[0];
   try {
     const url = new URL(c instanceof Request ? c.url : c.req.url);
-    // get domain name, without subdomains
+    const hostname = url.hostname;
     const domain = url.hostname.split('.').slice(-2).join('.');
-    const branding = zones.find(zone => zone.domains.includes(domain)) ?? defaultBranding;
+    const branding =
+      zones.find(zone => zone.domains.includes(hostname) || zone.domains.includes(domain)) ??
+      defaultBranding;
     const fallbackIcon =
       (branding.activityIcons as ActivityIcon)?.default ??
       (branding.activityIcons as ActivityIcon[])?.[0]?.default ??
