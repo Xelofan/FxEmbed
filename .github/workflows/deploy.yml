@@ -43,7 +43,7 @@ jobs:
           ENDPOINT_URL: https://${{ secrets.CF_ACCOUNT_ID }}.r2.cloudflarestorage.com
           BUCKET: ${{ vars.R2_CREDENTIALS_BUCKET }}
         run: |
-          aws s3 cp s3://$BUCKET/env .env --endpoint-url $ENDPOINT_URL
+          aws s3 cp s3://$BUCKET/env.txt .env --endpoint-url $ENDPOINT_URL
           aws s3 cp s3://$BUCKET/wrangler.toml wrangler.toml --endpoint-url $ENDPOINT_URL
           aws s3 cp s3://$BUCKET/branding.json branding.json --endpoint-url $ENDPOINT_URL
 
