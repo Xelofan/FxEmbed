@@ -1,0 +1,59 @@
+name: 'Upstream Sync'
+
+on:
+  schedule:
+    - cron: "0 18 * * *"
+      timezone: "Europe/Budapest"
+  workflow_dispatch:
+
+jobs:
+  sync_latest_from_upstream:
+    runs-on: ubuntu-latest
+    name: Sync latest commits from upstream repo
+    steps:
+
+    - name: Checkout forked repo
+      uses: actions/checkout@v6
+      with:
+        token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        fetch-depth: 0
+
+    - name: Add upstream remote
+      run: git remote add upstream https://github.com/FxEmbed/FxEmbed
+
+    - name: Fetch upstream changes
+      run: git fetch upstream
+
+    - name: Rebase and Push (or PR on conflict)
+      env:
+        GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      run: |
+        git config user.name ${{ vars.GIT_USER_NAME }}
+        git config user.email ${{ vars.GIT_USER_EMAIL }}
+        git checkout main
+
+        # Try to rebase. We use rebase to keep your history clean.
+        if git rebase upstream/main; then
+          echo "Sync successful, pushing to main"
+          git push origin main --force
+        else
+          echo "Collision detected! Creating a PR for manual review."
+          # Abort the failed rebase to get back to a clean state
+          git rebase --abort
+          
+          # Create a new branch for the PR
+          BRANCH_NAME="sync-upstream-$(date +%Y%m%d%H%M)"
+          git checkout -b $BRANCH_NAME
+          
+          # Merge instead of rebase for the PR so you can see the conflicts clearly
+          git merge upstream/main || true
+          
+          git add .
+          git commit -m "Merge upstream/main with conflicts"
+          git push origin $BRANCH_NAME
+          
+          # Create the PR using GitHub CLI
+          gh pr create --title "Manual Sync Required: Upstream Conflicts" \
+                       --body "Automatic sync failed due to conflicts. Please resolve them in this PR." \
+                       --base main --head $BRANCH_NAME
+        fi
