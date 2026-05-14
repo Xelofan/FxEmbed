@@ -28,8 +28,8 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       run: |
-        git config user.name ${{ vars.GIT_USER_NAME }}
-        git config user.email ${{ vars.GIT_USER_EMAIL }}
+        git config user.name "GitHub Action"
+        git config user.email "action@github.com"
         git checkout main
 
         # Try to rebase. We use rebase to keep your history clean.
