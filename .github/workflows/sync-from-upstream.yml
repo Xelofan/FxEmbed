@@ -48,7 +48,15 @@ jobs:
           # Merge instead of rebase for the PR so you can see the conflicts clearly
           git merge upstream/main || true
           
+          # Add all changes and check if there are changes to commit
           git add .
+          
+          # Only commit if there are staged changes
+          if git diff --cached --quiet; then
+            echo "No changes to commit after merge"
+            exit 1
+          fi
+          
           git commit -m "Merge upstream/main with conflicts"
           git push origin $BRANCH_NAME
           
