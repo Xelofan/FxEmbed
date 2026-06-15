@@ -106,9 +106,9 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^24.12.4",
+    "@types/node": "^24.13.1",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.8"
   },
   "dependencies": {
     "@hono/zod-openapi": "^1.4.0",
