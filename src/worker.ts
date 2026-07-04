@@ -115,15 +115,29 @@ export const app = new Hono<{
     } else if (Constants.ATMOSPHERE_API_HOST_LIST.includes(url.hostname)) {
       realm = 'atmosphere';
       console.log('Atmosphere API realm');
-    } else if (Constants.STANDARD_DOMAIN_LIST.includes(baseHostName)) {
-      realm = 'twitter';
-      console.log('Twitter realm');
-    } else if (Constants.STANDARD_BSKY_DOMAIN_LIST.includes(baseHostName)) {
+    } else if (
+      /* Check full hostname first so that a specific subdomain (e.g. bsky.twinky.men)
+         is matched before a base domain (twinky.men) that may appear in multiple lists.
+         The base-domain fallback handles entries like "fxbsky.app" that cover the whole domain. */
+      Constants.STANDARD_BSKY_DOMAIN_LIST.includes(url.hostname) ||
+      (!Constants.STANDARD_DOMAIN_LIST.includes(url.hostname) &&
+        Constants.STANDARD_BSKY_DOMAIN_LIST.includes(baseHostName))
+    ) {
       realm = 'bluesky';
       console.log('Bluesky realm');
-    } else if (Constants.STANDARD_TIKTOK_DOMAIN_LIST.includes(baseHostName)) {
+    } else if (
+      Constants.STANDARD_TIKTOK_DOMAIN_LIST.includes(url.hostname) ||
+      (!Constants.STANDARD_DOMAIN_LIST.includes(url.hostname) &&
+        Constants.STANDARD_TIKTOK_DOMAIN_LIST.includes(baseHostName))
+    ) {
       realm = 'tiktok';
       console.log('TikTok realm');
+    } else if (
+      Constants.STANDARD_DOMAIN_LIST.includes(url.hostname) ||
+      Constants.STANDARD_DOMAIN_LIST.includes(baseHostName)
+    ) {
+      realm = 'twitter';
+      console.log('Twitter realm');
     } else if (
       baseHostName.includes('workers.dev') ||
       baseHostName.includes('localhost') ||
