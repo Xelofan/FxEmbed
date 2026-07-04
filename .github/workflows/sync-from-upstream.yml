@@ -6,6 +6,10 @@ on:
       timezone: "Europe/Budapest"
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   sync_latest_from_upstream:
     runs-on: ubuntu-latest
@@ -15,7 +19,7 @@ jobs:
     - name: Checkout forked repo
       uses: actions/checkout@v6
       with:
-        token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
         fetch-depth: 0
 
     - name: Add upstream remote
@@ -24,44 +28,37 @@ jobs:
     - name: Fetch upstream changes
       run: git fetch upstream
 
-    - name: Rebase and Push (or PR on conflict)
-      env:
-        GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    - name: Configure Git
       run: |
         git config user.name "GitHub Action"
         git config user.email "action@github.com"
+
+    - name: Merge and Push (or PR on conflict)
+      env:
+        GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+      run: |
         git checkout main
 
-        # Try to rebase. We use rebase to keep your history clean.
-        if git rebase upstream/main; then
+        # Try to merge upstream/main into local main.
+        # We use merge instead of rebase to avoid rewriting history with merge commits
+        # and prevent force-pushing to a protected main branch.
+        if git merge upstream/main -m "Merge upstream changes"; then
           echo "Sync successful, pushing to main"
-          git push origin main --force
+          git push origin main
         else
-          echo "Collision detected! Creating a PR for manual review."
-          # Abort the failed rebase to get back to a clean state
-          git rebase --abort
-          
-          # Create a new branch for the PR
+          echo "Collision detected! Aborting merge and creating a clean PR."
+          git merge --abort
+
+          # Create a new branch pointing to upstream/main
           BRANCH_NAME="sync-upstream-$(date +%Y%m%d%H%M)"
-          git checkout -b $BRANCH_NAME
-          
-          # Merge instead of rebase for the PR so you can see the conflicts clearly
-          git merge upstream/main || true
-          
-          # Add all changes and check if there are changes to commit
-          git add .
-          
-          # Only commit if there are staged changes
-          if git diff --cached --quiet; then
-            echo "No changes to commit after merge"
-            exit 1
-          fi
-          
-          git commit -m "Merge upstream/main with conflicts"
+          git checkout -b $BRANCH_NAME upstream/main
+
+          # Push the clean upstream state to our fork
           git push origin $BRANCH_NAME
-          
-          # Create the PR using GitHub CLI
-          gh pr create --title "Manual Sync Required: Upstream Conflicts" \
-                       --body "Automatic sync failed due to conflicts. Please resolve them in this PR." \
+
+          # Create a PR from the clean upstream branch to our main, targeting this fork
+          gh pr create --repo ${{ github.repository }} \
+                       --title "Manual Sync Required: Upstream Conflicts" \
+                       --body "Automatic merge failed due to conflicts. Please resolve the conflicts directly in this PR." \
                        --base main --head $BRANCH_NAME
         fi
