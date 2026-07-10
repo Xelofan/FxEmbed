@@ -33,9 +33,9 @@
   "author": "dangered wolf",
   "license": "MIT",
   "devDependencies": {
-    "@aws-sdk/client-s3": "^3.1078.0",
-    "@aws-sdk/s3-request-presigner": "^3.1078.0",
-    "@cloudflare/vitest-pool-workers": "^0.17.0",
+    "@aws-sdk/client-s3": "^3.1079.0",
+    "@aws-sdk/s3-request-presigner": "^3.1079.0",
+    "@cloudflare/vitest-pool-workers": "^0.18.0",
     "@cloudflare/workers-types": "^4.20260702.1",
     "@eslint/js": "^10.0.1",
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
@@ -51,11 +51,11 @@
     "globals": "^17.7.0",
     "prettier": "^3.9.4",
     "ts-loader": "^9.6.2",
-    "tsx": "^4.22.4",
+    "tsx": "^4.23.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.62.1",
     "vitest": "^4.1.9",
-    "wrangler": "^4.106.0"
+    "wrangler": "^4.107.0"
   },
   "dependencies": {
     "@fxembed/atmosphere": "*",
