@@ -49,6 +49,15 @@ jobs:
           echo "Collision detected! Aborting merge and creating a clean PR."
           git merge --abort
 
+          # Close any existing stale sync PRs so we only ever track the latest one
+          gh pr list --repo ${{ github.repository }} \
+                     --state open \
+                     --search "Manual Sync Required in:title" \
+                     --json number \
+                     --jq '.[].number' | while read -r num; do
+            gh pr close "$num" --repo ${{ github.repository }} --delete-branch || true
+          done
+
           # Create a new branch pointing to upstream/main
           BRANCH_NAME="sync-upstream-$(date +%Y%m%d%H%M)"
           git checkout -b $BRANCH_NAME upstream/main
