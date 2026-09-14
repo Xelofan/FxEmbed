@@ -69,9 +69,7 @@ export function jsonError(message: string, status: number): Response {
 }
 
 export type ClassifyOutcome =
-  | { action: 'respond'; response: Response }
-  | { action: 'ignore' }
-  | { action: 'retry' };
+  { action: 'respond'; response: Response } | { action: 'ignore' } | { action: 'retry' };
 
 type RuleContext = { json: unknown; body: string; httpStatus: number };
 
@@ -207,6 +205,11 @@ const ERROR_RULES: ErrorRule[] = [
     match: ({ json }) => parseSearchTimelineClientError(json) === 'blocklisted',
     disposition: 'ignore',
     log: 'SearchTimeline blocklisted query (expected client error)'
+  },
+  {
+    match: ({ json }) => parseSearchTimelineClientError(json) === 'query_too_long',
+    disposition: 'ignore',
+    log: 'SearchTimeline query exceeds max length (expected client error)'
   }
 ];
 

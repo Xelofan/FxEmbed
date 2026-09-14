@@ -325,6 +325,17 @@ declare type BlueskySearchPostsResponse = {
   hitsTotal?: number;
 };
 
+/** `app.bsky.actor.searchActors` output (subset; `actors` are `#profileView`). */
+declare type BlueskySearchActorsResponse = {
+  actors?: BlueskyProfileView[];
+  cursor?: string;
+};
+
+/** `app.bsky.actor.searchActorsTypeahead` output (subset; no cursor — prefix autocomplete only). */
+declare type BlueskySearchActorsTypeaheadResponse = {
+  actors?: BlueskyProfileView[];
+};
+
 /** `app.bsky.unspecced.getTrendingTopics` (subset; public AppView). */
 declare type BlueskyTrendingTopicRow = {
   topic: string;
@@ -338,9 +349,7 @@ declare type BlueskyGetTrendingTopicsResponse = {
 
 /** `app.bsky.feed.getAuthorFeed` `filter` lexicon values used by FxBluesky. */
 declare type BlueskyAuthorFeedFilter =
-  | 'posts_no_replies'
-  | 'posts_with_replies'
-  | 'posts_with_media';
+  'posts_no_replies' | 'posts_with_replies' | 'posts_with_media';
 
 interface BlueskyProcessBucket {
   posts: BlueskyPost[];
