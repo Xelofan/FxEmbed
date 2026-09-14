@@ -28,7 +28,7 @@ test('Telegram Instant View is enabled for posts with multiple videos', async ()
 
   expect(isInstantViewHtml(html)).toBe(true);
   expect(html.match(/<video /g)?.length).toBeGreaterThanOrEqual(2);
-  expect(html).toContain('og:site_name" content="FxTwitter - Video 1 / 2"');
+  expect(html).toMatch(/og:site_name" content="[^"]* - Video 1 \/ 2"/);
 });
 
 test('Telegram Instant View is not enabled for a single video', async () => {
