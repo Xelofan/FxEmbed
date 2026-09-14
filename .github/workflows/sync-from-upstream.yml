@@ -2,7 +2,7 @@ name: 'Upstream Sync'
 
 on:
   schedule:
-    - cron: "0 18 * * *"
+    - cron: "0 18 * * 0"
       timezone: "Europe/Budapest"
   workflow_dispatch:
 
